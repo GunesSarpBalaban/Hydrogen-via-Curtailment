@@ -1,0 +1,104 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.328, 50.833] },
+      "properties": { "name": "Fawley Refinery", "operator": "ExxonMobil (Esso)", "location": "Fawley, Hampshire",
+        "category": "refining", "status": "operating", "note": "Largest refinery in the UK." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.840, 53.273] },
+      "properties": { "name": "Stanlow Refinery", "operator": "Essar / EET Fuels", "location": "Ellesmere Port, Cheshire",
+        "category": "refining", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-5.006, 51.685] },
+      "properties": { "name": "Pembroke Refinery", "operator": "Valero", "location": "Rhoscrowther, Pembrokeshire",
+        "category": "refining", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.246, 53.647] },
+      "properties": { "name": "Humber Refinery", "operator": "Phillips 66", "location": "South Killingholme, Lincolnshire",
+        "category": "refining", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.950, 53.320] },
+      "properties": { "name": "Eastham Refinery", "operator": "Shell / Nynas", "location": "Ellesmere Port, Cheshire",
+        "category": "refining", "status": "operating", "note": "Specialises in bitumen production." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [1.238, 51.942] },
+      "properties": { "name": "Harwich Manufacturing Centre", "operator": "Haltermann Carless (ICIG)", "location": "Harwich, Essex",
+        "category": "refining", "status": "operating", "note": "Specialty solvents refinery." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-3.690, 56.018] },
+      "properties": { "name": "Grangemouth Refinery", "operator": "Petroineos", "location": "Grangemouth, Falkirk",
+        "category": "refining", "status": "closed", "note": "Crude processing ceased April 2025 — now a fuels import terminal." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.270, 53.660] },
+      "properties": { "name": "Lindsey Oil Refinery", "operator": "Prax \u2192 Phillips 66", "location": "North Killingholme, Lincolnshire",
+        "category": "refining", "status": "closed", "note": "Shut down October 2025; assets acquired by Phillips 66, not restarted as a refinery." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.280, 54.600] },
+      "properties": { "name": "CF Fertilisers \u2014 Billingham Complex", "operator": "CF Industries", "location": "Billingham, Teesside",
+        "category": "ammonia", "status": "closed", "note": "Ammonia production permanently closed 2023. Site now imports ammonia for AN fertiliser and nitric acid production." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.830, 53.280] },
+      "properties": { "name": "CF Fertilisers \u2014 Ince", "operator": "CF Industries", "location": "Ince, Cheshire",
+        "category": "ammonia", "status": "closed", "note": "Idle since Sept 2021; closed 2022." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-3.698, 56.018] },
+      "properties": { "name": "INEOS Grangemouth Cracker", "operator": "INEOS O&P", "location": "Grangemouth, Falkirk",
+        "category": "industrialHeat", "status": "operating", "note": "UK's last remaining ethylene cracker." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.710, 53.340] },
+      "properties": { "name": "INEOS Inovyn Chlor-Alkali", "operator": "INEOS Inovyn", "location": "Runcorn, Cheshire",
+        "category": "industrialHeat", "status": "operating", "note": "Hydrogen by-product routed to on-site boilers." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.260, 53.730] },
+      "properties": { "name": "Saltend Chemicals Park", "operator": "px Group / INEOS Acetyls", "location": "Hull, East Yorkshire",
+        "category": "industrialHeat", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-3.303, 56.097] },
+      "properties": { "name": "Fife Ethylene Plant", "operator": "ExxonMobil Chemical", "location": "Mossmorran, Fife",
+        "category": "industrialHeat", "status": "closed", "note": "Permanently shut down February 2026." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.100, 54.580] },
+      "properties": { "name": "SABIC Olefins 6", "operator": "SABIC", "location": "Wilton, Teesside",
+        "category": "industrialHeat", "status": "closed", "note": "Closure confirmed 2025; idle since 2020." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.710, 53.340] },
+      "properties": { "name": "INEOS Inovyn Chlor-Alkali", "operator": "INEOS Inovyn", "location": "Runcorn, Cheshire",
+        "category": "otherChemicals", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.200, 54.610] },
+      "properties": { "name": "INEOS Nitriles", "operator": "INEOS Nitriles", "location": "Seal Sands, Teesside",
+        "category": "otherChemicals", "status": "operating", "note": "Acrylonitrile production." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.260, 53.730] },
+      "properties": { "name": "INEOS Acetyls", "operator": "INEOS Acetyls", "location": "Saltend, Hull",
+        "category": "otherChemicals", "status": "operating", "note": "Operates an on-site hydrogen reformer." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.100, 54.580] },
+      "properties": { "name": "SABIC LDPE (System 18)", "operator": "SABIC", "location": "Wilton, Teesside",
+        "category": "otherChemicals", "status": "operating", "note": "Feedstock now sourced externally after Olefins 6 closure." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-3.698, 56.018] },
+      "properties": { "name": "INEOS Grangemouth Petrochemicals", "operator": "INEOS", "location": "Grangemouth, Falkirk",
+        "category": "otherChemicals", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.260, 53.730] },
+      "properties": { "name": "Mitsubishi Chemical UK", "operator": "Mitsubishi Chemical", "location": "Saltend, Hull",
+        "category": "otherChemicals", "status": "operating", "note": "" } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-1.680, 54.950] },
+      "properties": { "name": "Winlaton (HyDeploy2)", "operator": "Northern Gas Networks / Cadent", "location": "Winlaton, Gateshead",
+        "category": "blending", "status": "closed", "note": "Trial ended 2022. Supplied 668 homes with a 20% hydrogen blend by volume." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-2.270, 53.000] },
+      "properties": { "name": "Keele University (HyDeploy Phase 1)", "operator": "Cadent / Keele University", "location": "Keele, Staffordshire",
+        "category": "blending", "status": "closed", "note": "Private network pilot. Trial ended 2021." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.260, 53.730] },
+      "properties": { "name": "Saltend Power Station", "operator": "Triton Power / Equinor / SSE Thermal", "location": "Hull, East Yorkshire",
+        "category": "powerGeneration", "status": "planned", "note": "Gas-fired currently; up to 30% hydrogen blend planned from 2027." } },
+
+    { "type": "Feature", "geometry": { "type": "Point", "coordinates": [-0.740, 53.600] },
+      "properties": { "name": "Keadby Hydrogen (\"Next Generation\")", "operator": "SSE Thermal / Equinor", "location": "North Lincolnshire",
+        "category": "powerGeneration", "status": "planned", "note": "Proposed hydrogen-capable station. DCO accepted for examination 2025; not yet built." } }
+  ]
+}
