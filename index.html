@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+
+    <meta charset="UTF-8">
+
+    <title>Hydrogen Dashboard</title>
+
+    <!-- Preconnect: lets the browser start DNS lookup + TLS handshake
+         for these origins immediately, ahead of the actual first
+         request to each — shaves connection-setup time off the first
+         script load and the first NESO API call, rather than paying
+         that latency only once the request itself fires. -->
+    <link rel="preconnect" href="https://unpkg.com">
+    <link rel="preconnect" href="https://cdn.jsdelivr.net">
+    <link rel="preconnect" href="https://api.neso.energy" crossorigin>
+
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet/dist/leaflet.css"
+    />
+
+    <link rel="stylesheet" href="style.css">
+
+
+</head>
+
+<body>
+
+<div id="map"></div>
+
+<button id="aboutSiteBtn" title="About this site">?</button>
+
+<button id="userManualBtn">Download User Manual</button>
+
+<button id="pdfExportBtn">
+    <span id="pdfExportBtnText">Print Summary PDF</span>
+    <span id="pdfExportBtnSpinner" class="hidden"></span>
+</button>
+
+<div id="aboutSiteOverlay" class="hidden">
+    <div id="aboutSiteModal">
+        <button id="aboutSiteCloseBtn" title="Close">&times;</button>
+
+        <div id="aboutSiteContent">
+
+        <h3>About this site</h3>
+
+        <p>Hi, I'm Sarp Balaban. I built this site while continuing my dissertation work through the University of Bath's FED-sponsored research event for the Impact Prize. I've always been genuinely interested in tackling the problem of wind curtailment in the UK, and this project grew out of wanting to make that problem — and what might realistically be done about it — more visible and easier to explore.</p>
+
+        <p>This site's design was inspired by <a href="https://grid.iamkate.com/" target="_blank" rel="noopener">Kate Morley's National Grid live dashboard</a> — my thanks to her for showing what a clear, well-built energy data site could look like.</p>
+
+        <p>If you'd like to thank me for the effort I've put into this project, or to help cover the cost of hosting the site, <a href="https://ko-fi.com/sarpbalaban" target="_blank" rel="noopener">your donation would be invaluable</a>.</p>
+
+        <p>This site tracks live UK wind curtailment, installed and planned wind capacity, and real UK hydrogen demand and trade figures, region by region across Great Britain. It also includes a simulation exploring how much hydrogen could be produced by electrolysers using power that's currently being curtailed.</p>
+
+        <p>Where a figure is a real, measured, or officially published number, the site says so. Where it's an estimate or a simulation rather than something that's actually happening, that's stated clearly too, alongside the reasoning behind it.</p>
+
+        <h4>Data sources</h4>
+        <ul id="aboutSiteSources">
+            <li><a href="https://www.neso.energy/data-portal" target="_blank" rel="noopener">National Energy System Operator (NESO) Data Portal</a> — wind curtailment volumes and live GB generation mix</li>
+            <li><a href="https://carbonintensity.org.uk/" target="_blank" rel="noopener">Carbon Intensity API</a> (National Energy System Operator and the University of Oxford Department of Computer Science) — regional generation mix</li>
+            <li><a href="https://www.gov.uk/government/publications/renewable-energy-planning-database-monthly-extract" target="_blank" rel="noopener">DESNZ Renewable Energy Planning Database (REPD)</a> — installed and planned wind capacity</li>
+            <li><a href="https://observatory.clean-hydrogen.europa.eu/" target="_blank" rel="noopener">European Hydrogen Observatory</a> (Eurostat-derived) — UK hydrogen demand and trade figures</li>
+        </ul>
+
+        <h4>Acknowledgements</h4>
+        <p>My thanks to Dr Laiz Souto, who oversaw and supported this project throughout.</p>
+        <p>This project was made possible by the sponsorship of the University of Bath and its <a href="https://www.bath.ac.uk/research-centres/centre-for-sustainable-energy-systems/" target="_blank" rel="noopener">Centre for Sustainable Energy Systems (SES)</a>.</p>
+        <img id="aboutSiteBathLogo" src="images/university-of-bath-logo.png" alt="University of Bath logo">
+
+        <!-- Support/donations section intentionally left out for now —
+             coming later. -->
+
+        </div>
+    </div>
+</div>
+
+<div id="leftPanelStack">
+
+    <div id="filterPanel" class="left-panel">
+        <button class="panel-collapse-btn" data-panel="filterPanel" title="Hide panel">&laquo;</button>
+        <h4>Map Layers</h4>
+        <div id="filterPanelList"></div>
+    </div>
+
+    <div id="hydrogenLegend" class="left-panel">
+        <button class="panel-collapse-btn" data-panel="hydrogenLegend" title="Hide panel">&laquo;</button>
+        <div id="hydrogenLegendContent"></div>
+    </div>
+
+    <div id="liveGridWidget" class="left-panel">
+        <button class="panel-collapse-btn" data-panel="liveGridWidget" title="Hide panel">&laquo;</button>
+        <div id="liveGridWidgetContent"></div>
+    </div>
+
+</div>
+
+<div id="sidebar" class="hidden">
+
+    <button id="closeBtn">✕</button>
+
+    <h2 id="regionTitle">
+        Region
+    </h2>
+
+    <div id="regionContent">
+
+        Select a region.
+
+    </div>
+
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js" defer></script>
+
+<script src="https://cdn.jsdelivr.net/npm/@turf/turf@6/turf.min.js" defer></script>
+
+<!-- Required by dataManager.js for chart rendering -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4/dist/chart.umd.min.js" defer></script>
+
+<!-- Shows numeric values on chart slices (pie chart labels) -->
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2" defer></script>
+
+<!-- PDF export feature: html2canvas captures the map as an image,
+     jsPDF assembles the full report (cover, TOC, national summary,
+     14 region pages) and triggers the download. -->
+<script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf@2.5.2/dist/jspdf.umd.min.js" defer></script>
+<script src="https://cdn.jsdelivr.net/npm/jspdf-autotable@3.8.2/dist/jspdf.plugin.autotable.min.js" defer></script>
+
+<script src="js/StorageCheck.js" defer></script>
+<script src="js/state.js" defer></script>
+<script src="js/map.js" defer></script>
+<script src="js/regionalMarkers.js" defer></script>
+<script src="js/sidebar.js" defer></script>
+<script src="js/cities.js" defer></script>
+
+<script src="js/filters.js" defer></script>
+
+<script src="js/hydrogenFacilities.js" defer></script>
+
+<script src="js/hydrogenLegend.js" defer></script>
+
+<script src="js/liveGridWidget.js" defer></script>
+
+<script src="js/windTurbines.js" defer></script>
+
+<script src="js/regionAnimation.js" defer></script>
+
+<!-- Wind curtailment: fetches + region-resolves NESO Wind BOA Volumes.
+     Needs turf (above) and appState (from state.js). Must load before
+     dataManager.js, which calls its exposed getRegionalWindCurtailment(). -->
+<script src="js/windCurtailment.js" defer></script>
+
+<script src="js/windCapacity.js" defer></script>
+
+<script src="js/hydrogenDemand.js" defer></script>
+
+<script src="js/hydrogenProduction.js" defer></script>
+
+<!-- Sidebar data/chart orchestration. Needs Chart.js + datalabels
+     plugin (above), plus windCurtailment.js's exposed globals. -->
+<script src="js/dataManager.js" defer></script>
+
+<script src="js/regions.js" defer></script>
+<script src="js/pdfExport.js" defer></script>
+
+<script src="js/UserManual.js" defer></script>
+
+<script src="js/leftPanels.js" defer></script>
+
+<script src="js/aboutSite.js" defer></script>
+
+<script src="js/app.js" defer></script>
+
+</body>
+
+</html>

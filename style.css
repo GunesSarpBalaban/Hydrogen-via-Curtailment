@@ -1,0 +1,783 @@
+html,
+body {
+
+    height:100%;
+    margin:0;
+
+    overflow:hidden;
+
+    font-family:Arial, Helvetica, sans-serif;
+
+}
+
+#map {
+
+    height:100vh;
+    width:100vw;
+
+    background:#e6f2f7;
+
+}
+
+#sidebar {
+
+    position:absolute;
+
+    top:0;
+    right:0;
+
+    width:540px;
+    height:100%;
+
+    background:white;
+
+    box-shadow:-4px 0px 10px rgba(0,0,0,0.2);
+
+    z-index:1000;
+
+    padding:20px;
+
+    box-sizing:border-box;
+
+    overflow-y:auto;
+
+    transition:transform 0.35s ease;
+
+}
+
+.hidden {
+
+    transform:translateX(100%);
+
+}
+
+#closeBtn {
+
+    float:right;
+
+    border:none;
+
+    background:none;
+
+    font-size:22px;
+
+    cursor:pointer;
+
+}
+
+/* ======================================================
+   Left Panel Stack (Filter Panel, Hydrogen Legend, Live Grid Widget)
+   ====================================================== */
+/* Flexbox stack instead of three independently hardcoded top offsets
+   — the previous approach broke every time a panel's content grew
+   (this happened twice this session already: a new filter row, then
+   a taller legend). space-evenly distributes whatever space is
+   actually available between the real, current heights of the three
+   panels automatically, so this doesn't need manual re-tuning again.
+   overflow-y:auto is a safety net — if the three panels' real content
+   is ever taller than the viewport even with zero gap, this scrolls
+   internally instead of the bottom panel silently running off-screen
+   with no way to reach it. */
+#leftPanelStack {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 100vh;
+    width: 280px; /* wide enough for the widest panel + its collapse tab */
+    display: flex;
+    flex-direction: column;
+    justify-content: space-evenly;
+    align-items: flex-start;
+    padding: 16px 0;
+    box-sizing: border-box;
+    z-index: 999;
+    pointer-events: none; /* clicks pass through the gaps to the map underneath */
+}
+
+.left-panel {
+    position: relative;
+    pointer-events: auto;
+    box-sizing: border-box;
+    transition: transform 0.3s ease;
+}
+
+/* Slides left, but not the full 100% — leaves exactly the collapse
+   button's own width visible at the left edge, so it stays reachable
+   to reopen the panel. Uses a percentage (not a fixed px offset), so
+   this works correctly for each panel's own width automatically
+   (they're not all the same width). */
+.left-panel.collapsed {
+    transform: translateX(calc(-100% + 26px));
+}
+
+.panel-collapse-btn {
+    position: absolute;
+    top: 8px;
+    right: 6px;
+    width: 22px;
+    height: 22px;
+    padding: 0;
+    border: none;
+    border-radius: 5px;
+    background: #ffffff;
+    color: #1890ff;
+    font-size: 12px;
+    font-weight: bold;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease, color 0.15s ease;
+}
+
+.panel-collapse-btn:hover {
+    background: #e6f7ff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+#filterPanel {
+
+    background:white;
+
+    border-radius:8px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+
+    padding:14px 16px;
+
+    width:220px;
+
+    box-sizing:border-box;
+
+}
+
+#filterPanel h4 {
+
+    margin:0 0 10px 0;
+
+    font-size:12px;
+    font-weight:700;
+    color:#333;
+
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+
+}
+
+.filter-row {
+
+    display:flex;
+
+    align-items:center;
+    justify-content:space-between;
+
+    padding:8px 0;
+
+    cursor:pointer;
+
+    border-bottom:1px solid #f0f0f0;
+
+}
+
+.filter-row:last-child {
+
+    border-bottom:none;
+
+}
+
+.filter-row:hover .filter-label {
+
+    color:#1890ff;
+
+}
+
+.filter-label {
+
+    font-size:13px;
+    font-weight:500;
+    color:#444;
+
+    transition:color 0.3s ease;
+
+}
+
+.filter-dot {
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    flex-shrink:0;
+
+    background:#ff4d4f;
+
+    box-shadow:0 0 0 rgba(0,0,0,0);
+
+    transition:background 0.2s ease, box-shadow 0.2s ease;
+
+}
+
+.filter-dot.on {
+
+    background:#52c41a;
+
+    box-shadow:0 0 4px rgba(82,196,26,0.6);
+
+}
+
+/* ======================================================
+   Hydrogen Facilities Legend
+   ====================================================== */
+/* Positioning now handled entirely by #leftPanelStack's flexbox
+   layout — no manual offset needed here anymore. */
+
+#hydrogenLegend {
+
+    background:white;
+
+    border-radius:8px;
+
+    box-shadow:0 2px 10px rgba(0,0,0,0.15);
+
+    padding:14px 16px;
+
+    width:190px;
+
+}
+
+#hydrogenLegend h4 {
+
+    margin:0 0 10px 0;
+
+    font-size:12px;
+    font-weight:700;
+    color:#333;
+
+    text-transform:uppercase;
+    letter-spacing:0.5px;
+
+}
+
+.legend-row {
+
+    display:flex;
+    align-items:center;
+    gap:8px;
+
+    padding:4px 0;
+
+}
+
+.legend-swatch {
+
+    width:12px;
+    height:12px;
+
+    border-radius:50%;
+
+    flex-shrink:0;
+
+    border:1.5px solid #fff;
+    box-shadow:0 0 0 1px rgba(0,0,0,0.15);
+
+}
+
+.legend-label {
+
+    font-size:12.5px;
+    color:#444;
+
+    transition:color 0.3s ease;
+
+}
+
+/* NOTE: filter panel / legend labels deliberately do NOT dim on
+   region focus (unlike the map itself) — they're functional UI
+   (controls + a color key), not part of the map scene, so keeping
+   them at full contrast keeps them usable while a region is open.
+   regions.js still toggles a `region-focused` class on <body> in
+   case it's useful for other styling later; it just isn't consumed
+   here anymore. */
+
+/* Sidebar Interaction Controls Styling */
+.sidebar-tabs {
+    display: flex;
+    gap: 4px;
+    background: #f0f2f5;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.tab-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #595959;
+}
+
+.tab-btn:hover {
+    color: #1890ff;
+}
+
+.tab-btn.active {
+    background: #ffffff;
+    color: #1890ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* Sub-section mode toggle (Daily/Yearly/Total, Historical/Projected,
+   etc.) — same visual language as .tab-btn / .sidebar-tabs above.
+   Shared by any multi-view sidebar section, not curtailment-specific
+   despite the original name. */
+.mode-toggle {
+    display: flex;
+    gap: 4px;
+    background: #f0f2f5;
+    padding: 4px;
+    border-radius: 6px;
+}
+
+.mode-btn {
+    flex: 1;
+    border: none;
+    background: transparent;
+    padding: 6px 10px;
+    font-size: 12px;
+    font-weight: 600;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    color: #595959;
+}
+
+.mode-btn:hover {
+    color: #1890ff;
+}
+
+.mode-btn.active {
+    background: #ffffff;
+    color: #1890ff;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.08);
+}
+
+/* ======================================================
+   Hydrogen Facility Popups (national view)
+   ====================================================== */
+/* Note: facility markers themselves are now SVG circleMarkers styled
+   directly via Leaflet's `style` option in hydrogenFacilities.js
+   (color/fillOpacity/dashArray), not CSS — this lets them be cloned
+   into the region-focus animation group, which only works for SVG
+   elements. Only the popup content below is CSS-styled. */
+
+/* Leaflet's default popup wrapper restyled to match filterPanel's
+   shadow/radius language rather than Leaflet's own defaults. */
+.leaflet-popup-content-wrapper {
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.hf-popup {
+    font-family: Arial, Helvetica, sans-serif;
+    min-width: 200px;
+}
+
+.hf-popup__name {
+    font-size: 14px;
+    font-weight: 700;
+    margin: 0 0 2px;
+    color: #222;
+}
+
+.hf-popup__meta {
+    font-size: 12px;
+    color: #555;
+    margin: 0 0 4px;
+}
+
+.hf-popup__badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.03em;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 100px;
+    margin: 4px 0 8px;
+}
+
+.hf-popup__badge--operating {
+    background: #e3f2e6;
+    color: #1e6b34;
+}
+
+.hf-popup__badge--closed {
+    background: #eee;
+    color: #666;
+}
+
+.hf-popup__badge--planned {
+    background: #fdf2d9;
+    color: #8a6414;
+}
+
+.hf-popup__note {
+    font-size: 12px;
+    color: #333;
+    line-height: 1.4;
+    margin: 0;
+    padding-top: 6px;
+    border-top: 1px solid #eee;
+}
+
+/* ======================================================
+   Live GB Grid Widget
+   ====================================================== */
+/* Positioning now handled entirely by #leftPanelStack's flexbox
+   layout — no manual offset needed here anymore. */
+
+#liveGridWidget {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+    padding: 14px 16px;
+    width: 260px;
+}
+
+#liveGridWidget h4 {
+    margin: 0 0 8px 0;
+    font-size: 12px;
+    font-weight: 700;
+    color: #333;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.grid-widget-top-row {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin-bottom: 10px;
+}
+
+.grid-widget-timestamp {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000;
+    margin: 0 0 8px;
+}
+
+.grid-widget-figure {
+    font-size: 20px;
+    font-weight: 700;
+    color: #1c1c1c;
+    display: flex;
+    align-items: baseline;
+    gap: 4px;
+}
+
+.grid-widget-figure-label {
+    font-size: 10.5px;
+    font-weight: 500;
+    color: #888;
+    margin-left: 4px;
+}
+
+.grid-widget-body {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.grid-widget-chart-wrap {
+    position: relative;
+    width: 90px;
+    height: 90px;
+    flex-shrink: 0;
+}
+
+.grid-widget-legend {
+    flex: 1;
+    min-width: 0;
+}
+
+.grid-widget-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 1.5px 0;
+    font-size: 11px;
+}
+
+.grid-widget-legend-swatch {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.grid-widget-legend-name {
+    color: #444;
+    flex: 1;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.grid-widget-legend-value {
+    color: #111;
+    font-weight: 600;
+    flex-shrink: 0;
+}
+
+.grid-widget-caveat {
+    font-size: 10px;
+    color: #999;
+    line-height: 1.4;
+    margin: 10px 0 0;
+    padding-top: 6px;
+    border-top: 1px solid #eee;
+}
+
+.grid-widget-error {
+    font-size: 12px;
+    color: #999;
+    font-style: italic;
+    margin: 0;
+}
+
+/* ======================================================
+   PDF Export Button
+   ====================================================== */
+/* Positioned within the same top-right area the sidebar occupies
+   (sidebar is right:0, width:540px, z-index:1000) — deliberately
+   given a LOWER z-index so the sidebar's own slide-in animation
+   naturally covers this button when a region is open, and it's
+   visible again the moment the sidebar closes. No extra JS needed to
+   explicitly show/hide it — this is purely a stacking-order trick. */
+
+#pdfExportBtn {
+    position: absolute;
+    top: 20px;
+    right: 62px;
+    z-index: 500;
+
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #1890ff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
+}
+
+#pdfExportBtn:hover:not(:disabled) {
+    background: #f0f8ff;
+}
+
+#pdfExportBtn:disabled {
+    color: #999;
+    cursor: default;
+}
+
+#pdfExportBtnSpinner {
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    border: 2px solid #e6f7ff;
+    border-top-color: #1890ff;
+    animation: pdf-btn-spin 0.8s linear infinite;
+}
+
+#pdfExportBtnSpinner.hidden {
+    display: none;
+}
+
+@keyframes pdf-btn-spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* ======================================================
+   User Manual Button
+   ====================================================== */
+/* Same visual style as #pdfExportBtn, positioned to its left.
+   right:260px is an ESTIMATE based on "Print Summary PDF"'s
+   approximate rendered width at 13px/600-weight Arial — untested live,
+   may need a small nudge once you can actually see both buttons
+   side by side. No loading state needed here (unlike the PDF button) —
+   this manual is entirely static content, no live data to wait for. */
+
+#userManualBtn {
+    position: absolute;
+    top: 20px;
+    right: 260px;
+    z-index: 500;
+
+    padding: 10px 16px;
+    border: none;
+    border-radius: 6px;
+    background: #ffffff;
+    color: #1890ff;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
+}
+
+#userManualBtn:hover {
+    background: #e6f7ff;
+}
+
+/* ======================================================
+   About Site Button + Modal
+   ====================================================== */
+/* Sits in the same top-right stacking context as #pdfExportBtn — same
+   z-index, so it's also covered by the sidebar sliding in and visible
+   again once it closes, consistent with the PDF button's behaviour. */
+
+#aboutSiteBtn {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    z-index: 500;
+
+    width: 34px;
+    height: 34px;
+    border: none;
+    border-radius: 50%;
+    background: #ffffff;
+    color: #1890ff;
+    font-family: Georgia, "Times New Roman", serif;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    transition: background 0.15s ease;
+}
+
+#aboutSiteBtn:hover {
+    background: #e6f7ff;
+}
+
+#aboutSiteOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.45);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#aboutSiteOverlay.hidden {
+    display: none;
+}
+
+#aboutSiteModal {
+    position: relative;
+    background: #ffffff;
+    border-radius: 10px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+    padding: 28px 32px;
+    max-width: 480px;
+    width: 90%;
+    max-height: 80vh;
+    font-family: Arial, Helvetica, sans-serif;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Scrolls independently of the close button above — this is what
+   fixes the button scrolling away with the content, since it was
+   previously a child of the same element that had overflow-y:auto. */
+#aboutSiteContent {
+    overflow-y: auto;
+    padding-top: 6px; /* clears the close button, which sits at top:14px/right:14px on the outer box */
+}
+
+#aboutSiteModal h3 {
+    margin: 0 0 14px 0;
+    font-size: 18px;
+    color: #111;
+}
+
+#aboutSiteModal h4 {
+    margin: 20px 0 8px 0;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: #666;
+}
+
+#aboutSiteModal p {
+    margin: 0 0 12px 0;
+    font-size: 13.5px;
+    line-height: 1.55;
+}
+
+#aboutSiteModal a {
+    color: #1890ff;
+    text-decoration: none;
+}
+
+#aboutSiteModal a:hover {
+    text-decoration: underline;
+}
+
+#aboutSiteSources {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+#aboutSiteBathLogo {
+    display: block;
+    height: 40px;
+    width: auto;
+    margin: 10px 0 4px 0;
+}
+
+#aboutSiteCloseBtn {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    width: 26px;
+    height: 26px;
+    border: none;
+    border-radius: 50%;
+    background: #f0f2f5;
+    color: #666;
+    font-size: 16px;
+    cursor: pointer;
+    line-height: 1;
+}
+
+#aboutSiteCloseBtn:hover {
+    background: #e6f7ff;
+    color: #1890ff;
+}
